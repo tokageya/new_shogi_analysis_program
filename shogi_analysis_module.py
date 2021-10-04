@@ -78,8 +78,8 @@ def calculate_move_concordance_rate(file_name, start_move_num, last_move_num):
 
 
 """
-search_suisho2_analysis_file_list 関数
-    指定したディレクトリ下(サブディレクトリも検索する)に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho2analysis.kif" )を検索してリストで返す
+search_suisho4_analysis_file_list 関数
+    指定したディレクトリ下(サブディレクトリも検索する)に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho4analysis.kif" )を検索してリストで返す
     (存在しなかった場合は [] を返す)
 """
 def search_suisho4_analysis_file_list(dir_name):
@@ -200,40 +200,47 @@ def read_board_evaluation_values(file_name):
                         value_str = value_str[:-1]
                     last_value = int(value_str)
                     values.append(last_value)
+                else:
+                    values.append(None)
                 read_bool = False
     return values
 
 
 """
-calculation_board_evaluation_each_average 関数
-    ディレクトリ内に存在する解析済みの各棋譜ファイル( ファイル名の末端が"_analysis.kif" )の各番での平均値を出してリストを返す
+calculation_board_evaluation_each_average_by_kishi_name 関数
+    ディレクトリ内に存在する解析済みの各棋譜ファイル( ファイル名の末端が"_suisho4analysis.kif" )の各番での上下の値の平均を出してリストを返す
 """
-def calculation_board_evaluation_each_average(dir_name):
-    #global boo
+def calculation_board_evaluation_each_average_by_kishi_name(dir_name, start_move_num , last_move_num, kishi_family_name, kishi_last_name, begin_datetime, end_datetime):
     file_list = search_suisho4_analysis_file_list(dir_name)
-    values_sum = None
-    count_list = [0] * 60
+    values_sum = 0
+    count_sum = 0
     for file in file_list:
-        #print(file)
-        #if file.count("20140213"):
-        #    boo = 1
-        #    print("waaaaaaaaaaa")
-        values = read_board_evaluation_values(file)
-        if values_sum is None:
-            values_sum = values[:TURN_NUM]
-            #print(values_sum)
-            #print(len(values_sum))
-        else:
-            #print(values)
-            #print(len(values))
-            for index in range(min([len(values), TURN_NUM])):
-                #print("now index = %d" % index )
-                if values[index] is not None:
-                    values_sum[index] = values[index] + values_sum[index]
-                    count_list[index] += 1
-    #print(values_sum)
-    for index in range(TURN_NUM):
-        values_sum[index] = float(values_sum[index])/count_list[index]
+        # --- 1. 対象の棋士が先手か後手かを調べる --- #
+        first_family_name = "" # 先手の性
+        second_family_name = "" # 後手の性
+        tmp = search_kishi_name(file)
+        first_family_name = tmp[0]
+        first_last_name = tmp[1]
+        second_family_name = tmp[2]
+        second_last_name = tmp[3]
+
+        # --- 2. 棋譜が対象の期間か調べる --- #
+        kif_datetime = search_date_and_time(file)
+        if (kif_datetime < begin_datetime) or (end_datetime < kif_datetime):
+            continue
+
+        # --- 3. 盤面評価値を算出する --- #
+        boad_values = read_board_evaluation_values(file)
+        diff_ai_list = []
+        if (first_family_name == kishi_family_name) and (first_last_name == kishi_last_name):
+            for i in range(len(boad_values)):
+                if (i % 2 == 0) and (boad_values[i] is not None) and ((i+1) < len(boad_values)) and (boad_values[i+1] is not None):
+                    diff_ai_list.append(boad_values[i] - boad_values[i+1])
+        elif (second_family_name == kishi_family_name) and (second_last_name == kishi_last_name):
+            for i in range(len(boad_values)):
+                if (i % 2 == 1) and (boad_values[i] is not None) and ((i+1) < len(boad_values)) and (boad_values[i+1] is not None):
+                    diff_ai_list.append(boad_values[i] - boad_values[i+1])
+        values_sum += sum(diff_ai_list)
+        count_sum += len(diff_ai_list)
     
-    #print(count_list)
-    return values_sum
+    return values_sum / count_sum

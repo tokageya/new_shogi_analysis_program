@@ -93,7 +93,8 @@ if __name__=="__main__":
     nagase_value_list = []
     nagase_count_list = []
 
-    print(read_board_evaluation_values(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
+    #print(read_board_evaluation_values(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
+    print(calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["渡辺"], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "渡辺", "明", YEAR_HASH["2019"][0], YEAR_HASH["2019"][1]))
     
     # csv ファイル出力
     """
