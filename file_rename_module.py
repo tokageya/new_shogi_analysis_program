@@ -14,6 +14,19 @@ def search_kif_file_list(dir_name):
     return glob.glob(dir_name+r"\**\*.KIF", recursive=True)
 
 """
+rename_file_tmp 関数
+    簡易的にファイル名を変更する
+    ex. 20200611永瀬 拓矢－屋敷 伸之.kif => 20200611永瀬 拓矢－屋敷 伸之_suisho2analysis.kif
+"""
+def rename_file_tmp(file_name):
+    #file_pass = file_name[:(file_name.rfind("\\")+1)] # ファイルのパス
+    if "analysis.kif" in file_name:
+        print("--- file name \"" + file_name + "\" already changed ---")
+        return
+    new_file_name = file_name.replace(".kif","_suisho2analysis.kif") # 新しいファイル名
+    os.rename(file_name, new_file_name)
+
+"""
 rename_file 関数
     ファイル名を受け取って、新しいフォーマットのファイル名に変更する
     ex. 19850614小林健二田丸昇.KIF => 19850614小林 健二－田丸 昇_suisho4analysis.kif

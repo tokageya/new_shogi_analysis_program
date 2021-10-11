@@ -83,7 +83,18 @@ if __name__=="__main__":
     ANALYSIS_LAST_TURN = 600
     #print(search_kishi_name(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
     #print(search_date_and_time(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
+
+    classB_PREMIER_NUMBER = 59
+    classB_LATEST_NUMBER = 79
+    board_evaluation_list = []
+    for number in list(range(classB_LATEST_NUMBER, classB_PREMIER_NUMBER-1, -1 )):
+        rate = calculation_board_evaluation_each_average(MASTER_DIR[("No"+str(number))], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN)
+        print("No"+str(number)+"__"+str(ANALYSIS_START_TURN)+"~"+str(ANALYSIS_LAST_TURN)+" rate:"+str(rate))
+        board_evaluation_list.insert(0, rate)
+    print("=== board_evaluation_list ===")
+    print(board_evaluation_list)
     
+    """
     watanabe_value_list = []
     watanabe_count_list = []
     fujii_value_list = []
@@ -94,11 +105,35 @@ if __name__=="__main__":
     nagase_count_list = []
 
     #print(read_board_evaluation_values(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
-    print(calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["渡辺"], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "渡辺", "明", YEAR_HASH["2019"][0], YEAR_HASH["2019"][1]))
+    #print(calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["渡辺"], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "渡辺", "明", YEAR_HASH["2019"][0], YEAR_HASH["2019"][1]))
     
+    print("--- 渡辺先生 ---")
+    for year in range(2000, 2021):
+        value_list = calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["渡辺"], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "渡辺", "明", YEAR_HASH[str(year)][0], YEAR_HASH[str(year)][1])
+        print(str(year) + " : "+str(value_list[1]) +" (count:"+str(value_list[0])+")")
+        watanabe_value_list.append(value_list[1])
+        watanabe_count_list.append(value_list[0])
+    print("--- 藤井先生 ---")
+    for year in range(2000, 2021):
+        value_list = calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["藤井"], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "藤井", "聡太", YEAR_HASH[str(year)][0], YEAR_HASH[str(year)][1])
+        print(str(year) + " : "+str(value_list[1]) +" (count:"+str(value_list[0])+")")
+        fujii_value_list.append(value_list[1])
+        fujii_count_list.append(value_list[0])
+    print("--- 豊島先生 ---")
+    for year in range(2000, 2021):
+        value_list = calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["豊島"],ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "豊島","将之" , YEAR_HASH[str(year)][0], YEAR_HASH[str(year)][1])
+        print(str(year) + " : "+str(value_list[1]) +" (count:"+str(value_list[0])+")")
+        toyoshima_value_list.append(value_list[1])
+        toyoshima_count_list.append(value_list[0])
+    print("--- 永瀬先生 ---")
+    for year in range(2000, 2021):
+        value_list = calculation_board_evaluation_each_average_by_kishi_name(MASTER_DIR["永瀬"],ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "永瀬","拓矢" , YEAR_HASH[str(year)][0], YEAR_HASH[str(year)][1])
+        print(str(year) + " : "+str(value_list[1]) +" (count:"+str(value_list[0])+")")
+        nagase_value_list.append(value_list[1])
+        nagase_count_list.append(value_list[0])
     # csv ファイル出力
-    """
-    with open("./result_kifu_analysis_concordance_rate_average.csv", "w", newline="") as f:
+    
+    with open("./result_kifu_analysis_board_evaluation_average.csv", "w", newline="") as f:
         writer = csv.writer(f)
 
         list_tmp = ["年度"]
@@ -106,23 +141,23 @@ if __name__=="__main__":
             list_tmp.append(i)
         writer.writerow(list_tmp)
 
-        watanabe_value_list.insert(0, "渡辺　明先生(評価値の年平均)")
+        watanabe_value_list.insert(0, "渡辺　明先生(盤面評価値の年平均)")
         writer.writerow(watanabe_value_list)
-        watanabe_count_list.insert(0, "渡辺　明先生(棋譜の個数)")
+        watanabe_count_list.insert(0, "渡辺　明先生(着手数)")
         writer.writerow(watanabe_count_list)
 
-        fujii_value_list.insert(0, "藤井　聡太先生(評価値の年平均)")
+        fujii_value_list.insert(0, "藤井　聡太先生(盤面評価値の年平均)")
         writer.writerow(fujii_value_list)
-        fujii_count_list.insert(0, "藤井　聡太先生(棋譜の個数)")
+        fujii_count_list.insert(0, "藤井　聡太先生(着手数)")
         writer.writerow(fujii_count_list)
 
-        toyoshima_value_list.insert(0, "豊島　将之先生(評価値の年平均)")
+        toyoshima_value_list.insert(0, "豊島　将之先生(盤面評価値の年平均)")
         writer.writerow(toyoshima_value_list)
-        toyoshima_count_list.insert(0, "豊島　将之先生(棋譜の個数)")
+        toyoshima_count_list.insert(0, "豊島　将之先生(着手数)")
         writer.writerow(toyoshima_count_list)
 
-        nagase_value_list.insert(0, "永瀬　拓矢先生(評価値の年平均)")
+        nagase_value_list.insert(0, "永瀬　拓矢先生(盤面評価値の年平均)")
         writer.writerow(nagase_value_list)
-        nagase_count_list.insert(0, "永瀬　拓矢先生(棋譜の個数)")
+        nagase_count_list.insert(0, "永瀬　拓矢先生(着手数)")
         writer.writerow(nagase_count_list)
     """

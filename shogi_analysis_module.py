@@ -76,6 +76,13 @@ def calculate_move_concordance_rate(file_name, start_move_num, last_move_num):
     second_match_rate = (float(second_match_num)) / second_actual_count 
     return [first_match_rate, second_match_rate]
 
+"""
+search_suisho2_analysis_file_list 関数
+    指定したディレクトリ下に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho2analysis.kif" )を検索してリストで返す
+    (存在しなかった場合は [] を返す)
+"""
+def search_suisho2_analysis_file_list(dir_name):
+    return glob.glob(dir_name+r"\**\*_suisho2analysis.kif", recursive=True)
 
 """
 search_suisho4_analysis_file_list 関数
@@ -119,8 +126,31 @@ def search_date_and_time(file_name):
     return game_datetime
 
 """
+calculation_move_concordance_rate_average 関数
+    引数で渡されたディレクトリ内に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho2analysis.kif" )について、引数で指定された手数の間のAIとの着手一致率の平均を求めて返す
+"""
+def calculation_move_concordance_rate_average(number, dir_name, start_move_num , last_move_num):
+    file_list = search_suisho2_analysis_file_list(dir_name)
+    move_concordance_rates_sum = 0
+    move_concordance_rate_list = [] # ここに一致率リストを追加
+    count = 0
+    if len(file_list) == 0: # ディレクトリの中身に解析済みの棋譜ファイルが存在しないとき
+        return None
+    for file in file_list:
+        move_concordance_rates = calculate_move_concordance_rate(file, start_move_num, last_move_num)
+        if (move_concordance_rates[0] is not None) and (move_concordance_rates[1] is not None):
+            move_concordance_rate_list.append(move_concordance_rates[0])
+            move_concordance_rate_list.append(move_concordance_rates[1])
+            move_concordance_rates_sum += (move_concordance_rates[0] + move_concordance_rates[1])
+            count += 2
+    move_concordance_rate_average = move_concordance_rates_sum / count
+    print(str(number)+"期順位戦B級1組___"+str(start_move_num)+"～"+str(last_move_num)+"手")
+    print("kishi_player_count : "+str(count))
+    return move_concordance_rate_average
+
+"""
 calculation_move_concordance_rate_average_by_kishi_name 関数
-    引数で渡されたディレクトリ内に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho4analysis.kif" )について、引数で指定された手数の間のAIとの着手一致率の平均を1人の将棋棋士に対して求めて返す
+    引数で渡されたディレクトリ内に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho4analysis.kif" )について、引数で指定された期間の棋譜と手数の間のAIとの着手一致率の平均を1人の将棋棋士に対して求めて返す
 """
 def calculation_move_concordance_rate_average_by_kishi_name(dir_name, start_move_num , last_move_num, kishi_family_name, kishi_last_name, begin_datetime, end_datetime):
     file_list = search_suisho4_analysis_file_list(dir_name)
@@ -143,7 +173,6 @@ def calculation_move_concordance_rate_average_by_kishi_name(dir_name, start_move
         kif_datetime = search_date_and_time(file)
         if (kif_datetime < begin_datetime) or (end_datetime < kif_datetime):
             continue
-        #print(kif_datetime)
 
         # --- 3. 一致率を算出する --- #
         move_concordance_rates = calculate_move_concordance_rate(file, start_move_num, last_move_num)
@@ -193,7 +222,7 @@ def read_board_evaluation_values(file_name):
                 continue
             if words[0].isdigit():
                 read_bool = True
-            elif read_bool is True and words[0] == "**解析": # 解析の出力行
+            elif (read_bool is True) and words[0] == "**解析": # 解析の出力行
                 value_str = words[words.index("評価値")+1]
                 if value_str != "+詰" and value_str != "-詰":
                     while not value_str[-1].isdigit(): # 矢印の削除
@@ -205,6 +234,23 @@ def read_board_evaluation_values(file_name):
                 read_bool = False
     return values
 
+def calculation_board_evaluation_each_average(dir_name, start_move_num , last_move_num):
+    file_list = search_suisho2_analysis_file_list(dir_name)
+    values_sum = 0
+    count_sum = 0
+    for file in file_list:
+        board_values = read_board_evaluation_values(file)
+        diff_ai_list = []
+        for i in range(len(board_values)):
+            if (i % 2 == 0) and (board_values[i] is not None) and ((i+1) < len(board_values)) and (board_values[i+1] is not None):
+                diff_ai_list.append(board_values[i+1] - board_values[i])
+            elif (i % 2 == 1) and (board_values[i] is not None) and ((i+1) < len(board_values)) and (board_values[i+1] is not None):
+                diff_ai_list.append((-1)*(board_values[i+1] - board_values[i]))
+        values_sum += sum(diff_ai_list)
+        count_sum += len(diff_ai_list)
+    if count_sum == 0:
+        return [0,None]
+    return  [count_sum, (values_sum / count_sum)]
 
 """
 calculation_board_evaluation_each_average_by_kishi_name 関数
@@ -230,17 +276,18 @@ def calculation_board_evaluation_each_average_by_kishi_name(dir_name, start_move
             continue
 
         # --- 3. 盤面評価値を算出する --- #
-        boad_values = read_board_evaluation_values(file)
+        board_values = read_board_evaluation_values(file)
         diff_ai_list = []
         if (first_family_name == kishi_family_name) and (first_last_name == kishi_last_name):
-            for i in range(len(boad_values)):
-                if (i % 2 == 0) and (boad_values[i] is not None) and ((i+1) < len(boad_values)) and (boad_values[i+1] is not None):
-                    diff_ai_list.append(boad_values[i] - boad_values[i+1])
+            for i in range(len(board_values)):
+                if (i % 2 == 0) and (board_values[i] is not None) and ((i+1) < len(board_values)) and (board_values[i+1] is not None):
+                    diff_ai_list.append(board_values[i+1] - board_values[i])
         elif (second_family_name == kishi_family_name) and (second_last_name == kishi_last_name):
-            for i in range(len(boad_values)):
-                if (i % 2 == 1) and (boad_values[i] is not None) and ((i+1) < len(boad_values)) and (boad_values[i+1] is not None):
-                    diff_ai_list.append(boad_values[i] - boad_values[i+1])
+            for i in range(len(board_values)):
+                if (i % 2 == 1) and (board_values[i] is not None) and ((i+1) < len(board_values)) and (board_values[i+1] is not None):
+                    diff_ai_list.append((-1)*(board_values[i+1] - board_values[i]))
         values_sum += sum(diff_ai_list)
         count_sum += len(diff_ai_list)
-    
-    return values_sum / count_sum
+    if count_sum == 0:
+        return [0,None]
+    return  [count_sum, (values_sum / count_sum)]

@@ -1,3 +1,4 @@
+from re import match
 from typing import Match
 from shogi_analysis_module import *
 import csv
@@ -83,7 +84,16 @@ if __name__=="__main__":
     ANALYSIS_LAST_TURN = 600
     #print(search_kishi_name(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
     #print(search_date_and_time(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
-    print("--- 渡辺先生 ---")
+    classB_PREMIER_NUMBER = 59
+    classB_LATEST_NUMBER = 79
+    match_rate = []
+    for number in list(range(classB_LATEST_NUMBER, classB_PREMIER_NUMBER-1, -1 )):
+        rate = calculation_move_concordance_rate_average(number, MASTER_DIR[("No"+str(number))], ANALYSIS_START_TURN, ANALYSIS_LAST_TURN)
+        print("No"+str(number)+"__"+str(ANALYSIS_START_TURN)+"~"+str(ANALYSIS_LAST_TURN)+" rate:"+str(rate))
+        match_rate.insert(0, rate)
+    print("=== match_rate ===")
+    print(match_rate)
+    """
     watanabe_value_list = []
     watanabe_count_list = []
     fujii_value_list = []
@@ -92,6 +102,7 @@ if __name__=="__main__":
     toyoshima_count_list = []
     nagase_value_list = []
     nagase_count_list = []
+    print("--- 渡辺先生 ---")
     for year in range(2000, 2021):
         value_list = calculation_move_concordance_rate_average_by_kishi_name(MASTER_DIR["渡辺"],ANALYSIS_START_TURN, ANALYSIS_LAST_TURN, "渡辺", "明", YEAR_HASH[str(year)][0], YEAR_HASH[str(year)][1])
         print(str(year) + " : "+str(value_list[1]))
@@ -115,7 +126,9 @@ if __name__=="__main__":
         print(str(year) + " : "+str(value_list[1]))
         nagase_value_list.append(value_list[1])
         nagase_count_list.append(value_list[0])
+    """
     # csv ファイル出力
+    """
     with open("./result_kifu_analysis_concordance_rate_average.csv", "w", newline="") as f:
         writer = csv.writer(f)
 
@@ -143,3 +156,4 @@ if __name__=="__main__":
         writer.writerow(nagase_value_list)
         nagase_count_list.insert(0, "永瀬　拓矢先生(棋譜の個数)")
         writer.writerow(nagase_count_list)
+    """
