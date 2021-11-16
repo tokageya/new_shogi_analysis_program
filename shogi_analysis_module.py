@@ -9,6 +9,38 @@ import glob # ファイル名検索
 #from statistics import variance # 分散表示
 import pprint
 
+"""
+create_new_file 関数
+    引数で渡された手数までの棋譜を作成する
+"""
+def create_new_file(file_name, turn, new_file_name):
+    new_lines = []
+
+    with open(file_name, mode="r", encoding="cp932") as file:
+        analysis_bool = False
+        now_turn = 0
+        for line in file.readlines():
+            if line.startswith("#"):
+                continue
+            words = line.split()
+            if not words:
+                continue
+            if words[0].isdigit():
+                now_turn = int(words[0])
+            elif words[0] != "**解析":
+                continue
+            if words[0] == "**解析":
+                analysis_bool = True
+            # ターン数が超過したら、処理を終了
+            if turn < now_turn:
+                break
+            # ターン数が超過していないなら、lineをそのままnew_file_nameに出力する
+            elif analysis_bool:
+                new_lines.append(line)
+    with open(new_file_name, mode="w", encoding="cp932", newline="") as file:
+        file.writelines(new_lines)
+    return
+
 #=====================================#
 #
 # AIとの着手一致率に関する関数定義
@@ -76,6 +108,13 @@ def calculate_move_concordance_rate(file_name, start_move_num, last_move_num):
     second_match_rate = (float(second_match_num)) / second_actual_count 
     return [first_match_rate, second_match_rate]
 
+"""
+search_suisho2_analysis_file_list 関数
+    指定したディレクトリ下(サブディレクトリも検索する)に存在する解析済みの棋譜ファイル( ファイル名の末端が"_suisho2analysis.kif" )を検索してリストで返す
+    (存在しなかった場合は [] を返す)
+"""
+def search_suisho2_analysis_file_list(dir_name):
+    return glob.glob(dir_name+r"\**\*_suisho2analysis.kif", recursive=True)
 
 """
 search_suisho4_analysis_file_list 関数
