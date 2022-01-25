@@ -79,11 +79,11 @@ if __name__=="__main__":
     #print(len(search_suisho4_analysis_file_list(MASTER_DIR["豊島"])))
     #print(len(search_suisho4_analysis_file_list(MASTER_DIR["永瀬"])))
     #print(len(search_suisho4_analysis_file_list(r"C:\Users\msait\Documents\research\shogi\kifu\棋譜解析結果ファイル(渡辺明先生他)(水匠4)")))
-    ANALYSIS_START_TURN = 1 # 最初のターン
+    ANALYSIS_START_TURN = 81 # 最初のターン
     ANALYSIS_LAST_TURN = 600
     #print(search_kishi_name(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
     #print(search_date_and_time(MASTER_DIR["渡辺"] + r"\20000417佐藤 紳哉－渡辺 明_suisho4analysis.kif"))
-
+    #"""
     classB_PREMIER_NUMBER = 59
     classB_LATEST_NUMBER = 79
     board_evaluation_list = []
@@ -93,8 +93,13 @@ if __name__=="__main__":
         board_evaluation_list.insert(0, rate)
     print("=== board_evaluation_list ===")
     print(board_evaluation_list)
-    
-    """
+    new_board_evaluation_list = []
+    new_board_evaluation_count_list = []
+    for i in range(len(board_evaluation_list)):
+        new_board_evaluation_list.append(board_evaluation_list[i][1])
+        new_board_evaluation_count_list.append(board_evaluation_list[i][0])
+    #"""
+    #"""
     watanabe_value_list = []
     watanabe_count_list = []
     fujii_value_list = []
@@ -132,7 +137,6 @@ if __name__=="__main__":
         nagase_value_list.append(value_list[1])
         nagase_count_list.append(value_list[0])
     # csv ファイル出力
-    
     with open("./result_kifu_analysis_board_evaluation_average.csv", "w", newline="") as f:
         writer = csv.writer(f)
 
@@ -141,23 +145,28 @@ if __name__=="__main__":
             list_tmp.append(i)
         writer.writerow(list_tmp)
 
-        watanabe_value_list.insert(0, "渡辺　明先生(盤面評価値の年平均)")
+        watanabe_value_list.insert(0, "渡辺　明先生(盤面評価値変動の年平均)")
         writer.writerow(watanabe_value_list)
         watanabe_count_list.insert(0, "渡辺　明先生(着手数)")
         writer.writerow(watanabe_count_list)
 
-        fujii_value_list.insert(0, "藤井　聡太先生(盤面評価値の年平均)")
+        fujii_value_list.insert(0, "藤井　聡太先生(盤面評価値変動の年平均)")
         writer.writerow(fujii_value_list)
         fujii_count_list.insert(0, "藤井　聡太先生(着手数)")
         writer.writerow(fujii_count_list)
 
-        toyoshima_value_list.insert(0, "豊島　将之先生(盤面評価値の年平均)")
+        toyoshima_value_list.insert(0, "豊島　将之先生(盤面評価値変動の年平均)")
         writer.writerow(toyoshima_value_list)
         toyoshima_count_list.insert(0, "豊島　将之先生(着手数)")
         writer.writerow(toyoshima_count_list)
 
-        nagase_value_list.insert(0, "永瀬　拓矢先生(盤面評価値の年平均)")
+        nagase_value_list.insert(0, "永瀬　拓矢先生(盤面評価値変動の年平均)")
         writer.writerow(nagase_value_list)
         nagase_count_list.insert(0, "永瀬　拓矢先生(着手数)")
         writer.writerow(nagase_count_list)
-    """
+
+        new_board_evaluation_list.insert(0, "B級1組(盤面評価値変動の年平均)")
+        writer.writerow(new_board_evaluation_list)
+        new_board_evaluation_count_list.insert(0, "B級1組(着手数)")
+        writer.writerow(new_board_evaluation_count_list)
+    #"""
